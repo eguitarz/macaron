@@ -1,0 +1,13 @@
+#!/user/bin/ruby
+
+require File.dirname(__FILE__) + '/../lib/macaron'
+
+mother = Spawner.new({ 
+  :thread_timeout_seconds => 999,
+  :in_site_crawling => true,
+  :with_waltir => false
+})
+mother.dig('http://rubyconf.tw/2012/', 2)
+# mother.dig('http://www.sakura.idv.tw/', 2) # url, depth
+puts "Success times: #{mother.success_times}"
+puts "Fail times: #{mother.fail_times}"
