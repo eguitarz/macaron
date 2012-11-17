@@ -63,7 +63,7 @@ module Macaron
 
       @bot.close unless @bot.nil?
 
-      # puts "result: #{@@result.size}, #{@@result.keys}"
+      puts "result: #{@@result.size}, #{@@result.keys}" if @@options[:debug]
     end
 
     private

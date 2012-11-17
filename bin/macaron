@@ -1,13 +1,42 @@
-#!/user/bin/ruby
-
+#!/usr/bin/ruby
 require File.dirname(__FILE__) + '/../lib/macaron'
+require 'rubygems'
+require 'optparse'
+require 'macaron/version'
 
-mother = Spawner.new({ 
-  :thread_timeout_seconds => 999,
-  :in_site_crawling => true,
-  :with_waltir => false
-})
-mother.dig('http://rubyconf.tw/2012/', 2)
-# mother.dig('http://www.sakura.idv.tw/', 2) # url, depth
+options = {:depth => 2}
+options_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} [options] URL"
+
+  opts.on("-d", "--debug", "Show debug output") do |v|
+    options[:debug] = v
+  end
+
+  opts.on("-n N", "--depth N", Integer, "Set the digging depth N") do |n|
+    options[:depth] = n
+  end
+
+  opts.on("-j", "--javascript", "Open javascript support mode") do |j|
+    options[:waltir] = j
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+options_parser.parse!
+
+if ARGV.length != 1
+  STDERR.puts options_parser
+  exit 1
+end
+
+url = ARGV.first
+puts "Starting at #{url}"
+
+mother = Spawner.new(options)
+mother.dig(url, options[:depth])
 puts "Success times: #{mother.success_times}"
 puts "Fail times: #{mother.fail_times}"
