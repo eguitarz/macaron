@@ -39,7 +39,7 @@ module Macaron
       @@fail_times
     end
 
-    def dig(url, init_depth)
+    def dig(url, init_depth=3)
       @@task_map = @@task_map.put(url, init_depth)
       loop do
         @@task_map = @@task_map.remove {|url, depth| 
@@ -54,7 +54,7 @@ module Macaron
         }
 
         break if @threadpool.busy_workers_count == 0 && @@task_map.empty?
-        
+
         if @@success_times > @@options[:pages]
           print "Fetched pages exceeds the limit #{@@options[:pages]}\n"
           break
