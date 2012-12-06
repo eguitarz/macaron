@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'threadpool'
 
 module Macaron
@@ -13,7 +14,8 @@ module Macaron
         scraper = Scraper.new
         scraper.analyze(url, html)
 
-        @@result[url] = {:anchors => scraper.anchors}
+        # @@result[url] = {:anchors => scraper.anchors}
+        @@result[url] = true;
 
         # do some additional analyzes
         run_sub_tasks(scraper)
@@ -24,9 +26,11 @@ module Macaron
         else
           links = scraper.absolute_anchors
         end
+        puts "found #{links.size} links on #{url}" if @@options[:debug]
 
-        links.each { |a| 
+        links.each { |a|
           next if @@parsed_urls.include?(a)
+          p "put #{a} into tasks" if @@options[:debug]
           @@task_map = @@task_map.put(a, depth - 1)
         }
 
@@ -44,6 +48,14 @@ module Macaron
     private
     def run_sub_tasks(scraper)
       # p scraper.image_urls
+      
+      if @@options[:save]
+        dir = @@options[:dir] || '/tmp'
+        filename = scraper.host.gsub('/', '\\')
+        File.open(File.join(dir, filename), "w+") do |f|
+          f.write(scraper.dom)
+        end
+      end
     end
 
   end

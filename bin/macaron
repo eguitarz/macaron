@@ -17,7 +17,11 @@ options_parser = OptionParser.new do |opts|
   end
 
   opts.on("-j", "--javascript", "Open javascript support mode") do |j|
-    options[:waltir] = j
+    options[:with_waltir] = j
+  end
+
+  opts.on("-s", "--save", "Save html") do |s|
+    options[:save] = s
   end
 
   opts.on_tail("-h", "--help", "Show this message") do

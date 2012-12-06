@@ -16,10 +16,11 @@ module Macaron
       :nokogiri_timeout_seconds => 30,
       :thread_timeout_seconds => 40,
       :pages => 1000,
-      :initial_workers => 1,
-      :maximum_workers => 1,
+      :initial_workers => 4,
+      :maximum_workers => 4,
       :in_site_crawling => true,
-      :with_waltir => false
+      :with_waltir => false,
+      :debug => false
     }.freeze
 
     def initialize(options = {})
@@ -42,7 +43,7 @@ module Macaron
     def dig(url, init_depth=3)
       @@task_map = @@task_map.put(url, init_depth)
       loop do
-        @@task_map = @@task_map.remove {|url, depth| 
+        @@task_map.each {|url, depth|
           @@parsed_urls = @@parsed_urls.add(url)
 
           if @@options[:with_waltir]
@@ -50,7 +51,9 @@ module Macaron
             @threadpool.load(Processor.new(url, depth, html))  
           else
             @threadpool.load(Processor.new(url, depth))
-          end          
+          end
+
+          @@task_map = @@task_map.delete(url)
         }
 
         break if @threadpool.busy_workers_count == 0 && @@task_map.empty?

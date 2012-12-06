@@ -7,6 +7,7 @@ require 'watir-webdriver'
 
 module Macaron
   class Scraper
+    attr_reader :dom, :host
 
     def analyze(host, html)
       @host = host
@@ -56,11 +57,11 @@ module Macaron
     end
 
     def fetch_dom
-      if @@options[:with_waltir]
-        @dom = Nokogiri::HTML(@html)
-      else
-        @dom = Nokogiri::HTML(open(@host))
+      unless @@options[:with_waltir]
+        @html = open(@host)
       end
+
+      @dom = Nokogiri::HTML(@html)
     end
 
     def make_absolute_anchors(nodes)
