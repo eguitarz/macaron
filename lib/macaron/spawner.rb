@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'timeout'
 require 'observer'
 require 'watir-webdriver'
