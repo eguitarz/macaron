@@ -17,7 +17,7 @@ options_parser = OptionParser.new do |opts|
   end
 
   opts.on("-j", "--javascript", "Open javascript support mode") do |j|
-    options[:with_waltir] = j
+    options[:with_watir] = j
   end
 
   opts.on("-s", "--save", "Save html") do |s|
@@ -38,9 +38,6 @@ if ARGV.length != 1
 end
 
 url = ARGV.first
-puts "Starting at #{url}"
+puts "Started"
 
-mother = Spawner.new(options)
-mother.dig(url, options[:depth])
-puts "Success times: #{mother.success_times}"
-puts "Fail times: #{mother.fail_times}"
+Spawner.new(url, options)

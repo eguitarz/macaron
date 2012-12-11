@@ -1,79 +1,75 @@
-require 'rubygems'
-require 'threadpool'
-require 'hamster'
+require 'timeout'
+require 'observer'
+require 'watir-webdriver'
 
 module Macaron
-  @@result = {}
-  @@parsed_urls = Hamster.set
-  @@task_map = Hamster.hash
-  @@options = {}
-  @@success_times = 0
-  @@fail_times = 0
-  @@mutex = Mutex.new
-
   class Spawner
-    DEFALUT_OPTIONS = {
-      :nokogiri_timeout_seconds => 30,
-      :thread_timeout_seconds => 40,
-      :pages => 1000,
-      :initial_workers => 4,
-      :maximum_workers => 4,
-      :in_site_crawling => true,
-      :with_waltir => false,
-      :debug => false
-    }.freeze
+    def initialize(url, options)
+      @options = options
 
-    def initialize(options = {})
-      @@options = DEFALUT_OPTIONS.merge(options)
-      @threadpool = Threadpool.new(
-        @@options[:initial_workers], 
-        @@options[:maximum_workers], 
-        @@options[:thread_timeout_seconds]
-      )
-    end
+      # threadpool(init workers, max workers, job timeout)
+      threadpool = Threadpool.new(10, 10, job_timeout)
 
-    def success_times
-      @@success_times
-    end
+      # tasks saves the on-processing urls
+      @tasks = Queue.new
+      @tasks << url
 
-    def fail_times
-      @@fail_times
-    end
+      # parsed_urls used to prevent loop crawling
+      @parsed_urls = [url]
 
-    def dig(url, init_depth=3)
-      @@task_map = @@task_map.put(url, init_depth)
+      # awaiting_counter saves the awaiting task number
+      @awaiting_counter = 1
+
+      # bot is a webdriver
+      bot = Watir::Browser.new if @options[:with_watir]
+
       loop do
-        @@task_map.each {|url, depth|
-          @@parsed_urls = @@parsed_urls.add(url)
+        print "@awaiting_counter = #{@awaiting_counter}\n"
+        break if @awaiting_counter == 0
 
-          if @@options[:with_waltir]
-            html = get_html_via_waltir(url)
-            @threadpool.load(Processor.new(url, depth, html))  
-          else
-            @threadpool.load(Processor.new(url, depth))
-          end
-
-          @@task_map = @@task_map.delete(url)
-        }
-
-        break if @threadpool.busy_workers_count == 0 && @@task_map.empty?
-
-        if @@success_times > @@options[:pages]
-          print "Fetched pages exceeds the limit #{@@options[:pages]}\n"
-          break
+        begin
+          Timeout::timeout(task_timeout) { url = @tasks.shift }
+        rescue
+          next
         end
+
+
+        job = Macaron::Crawler.new(url, bot)
+        job.add_observer(self)
+
+        threadpool.load(job)
       end
 
-      @bot.close unless @bot.nil?
-
-      puts "result: #{@@result.size}, #{@@result.keys}" if @@options[:debug]
+      bot.close unless bot.nil?
     end
 
-    private
-    def get_html_via_waltir(url)
-      @bot ||= Watir::Browser.new
-      @bot.goto(url)
-      @bot.html
+    def update(links)
+      @awaiting_counter -= 1
+      links.each do |link|
+        unless @parsed_urls.include?(link)
+          @tasks << link
+          @awaiting_counter += 1
+        end
+        @parsed_urls << link
+      end
+    end
+
+    private 
+    def task_timeout
+      # webdriver is slow, it takes more time to wait the result.
+      if @options[:with_watir]
+        10
+      else
+        2
+      end
+    end
+
+    def job_timeout
+      if @options[:with_watir]
+        20
+      else
+        10
+      end
     end
 
   end
