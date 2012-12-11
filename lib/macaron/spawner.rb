@@ -24,7 +24,6 @@ module Macaron
       bot = Watir::Browser.new if @options[:with_watir]
 
       loop do
-        print "@awaiting_counter = #{@awaiting_counter}\n"
         break if @awaiting_counter == 0
 
         begin
@@ -32,7 +31,6 @@ module Macaron
         rescue
           next
         end
-
 
         job = Macaron::Crawler.new(url, bot)
         job.add_observer(self)
