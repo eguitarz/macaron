@@ -4,7 +4,7 @@ require 'watir-webdriver'
 
 module Macaron
   class Spawner
-    def initialize(url, options)
+    def initialize(url, options={})
       @options = options
 
       # threadpool(init workers, max workers, job timeout)

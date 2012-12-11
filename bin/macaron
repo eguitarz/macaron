@@ -40,4 +40,4 @@ end
 url = ARGV.first
 puts "Started"
 
-Spawner.new(url, options)
+Spawner.new(url)

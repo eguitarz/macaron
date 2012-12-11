@@ -7,10 +7,7 @@ Macaron is a simple web scraper implemented in ruby. It's used for service alive
 ## Example
 ```ruby
 require 'macaron'
-spawner = Spawner.new()
-
-# 1st argument is for start url, 2nd is for the depth to dig (optional)
-spawner.dig("http://www.google.com/", 2)
+Spawner.new("http://www.google.com")
 ```
 
 ## CLI (Command Line Interface)
