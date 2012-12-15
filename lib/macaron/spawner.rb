@@ -1,6 +1,6 @@
-require 'rubygems'
 require 'timeout'
 require 'observer'
+require 'threadpool'
 require 'watir-webdriver'
 
 module Macaron
@@ -22,7 +22,10 @@ module Macaron
       @awaiting_counter = 1
 
       # bot is a webdriver
-      bot = Watir::Browser.new if @options[:with_watir]
+      if @options[:with_watir]
+        bot = Watir::Browser.new
+        bot.extend(MonitorMixin)
+      end
 
       loop do
         break if @awaiting_counter == 0
@@ -33,7 +36,7 @@ module Macaron
           next
         end
 
-        job = Macaron::Crawler.new(url, bot)
+        job = Crawler.new(url, bot)
         job.add_observer(self)
 
         threadpool.load(job)
@@ -59,7 +62,7 @@ module Macaron
       if @options[:with_watir]
         10
       else
-        2
+        4
       end
     end
 

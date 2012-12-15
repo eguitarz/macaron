@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'observer'
 require 'timeout'
 require 'threadpool'

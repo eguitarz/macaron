@@ -1,6 +1,6 @@
-$: << File.dirname(__FILE__)
-
-require 'macaron/spawner'
-require 'macaron/crawler'
-require 'macaron/page'
-include Macaron
+module Macaron
+  autoload :Version, 'macaron/version'
+  autoload :Spawner, 'macaron/spawner'
+  autoload :Crawler, 'macaron/crawler'
+  autoload :Page   , 'macaron/page'
+end

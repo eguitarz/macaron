@@ -1,13 +1,16 @@
 # Macaron
 Macaron is a simple web scraper implemented in ruby. It's used for service alive testing.
 
+## Support
+Ruby 1.9.x
+
 ## Install
     gem install macaron
 
 ## Example
 ```ruby
 require 'macaron'
-Spawner.new("http://www.google.com")
+Macaron::Spawner.new("http://www.google.com")
 ```
 
 ## CLI (Command Line Interface)

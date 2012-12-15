@@ -1,14 +1,11 @@
-require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
-require 'thread'
 
 module Macaron
   class Page
     def initialize(url, bot=nil)
       @url = url
       @bot = bot
-      @@bot_lock = Mutex.new
     end
 
     def fetch
@@ -42,7 +39,7 @@ module Macaron
     def content
       if @bot
         # only activate one browser, needs to be thread safe.
-        @@bot_lock.synchronize { 
+        @bot.synchronize {
           @bot.goto(@url)
           @bot.html
         }

@@ -1,8 +1,8 @@
-#!/usr/bin/ruby
-require File.dirname(__FILE__) + '/../lib/macaron'
-require 'rubygems'
+#!/usr/bin/env ruby
+$:.unshift File.dirname(__FILE__) + "/../lib"
+
 require 'optparse'
-require 'macaron/version'
+require 'macaron'
 
 options = {:depth => 2}
 options_parser = OptionParser.new do |opts|
@@ -40,4 +40,4 @@ end
 url = ARGV.first
 puts "Started"
 
-Spawner.new(url, options)
+Macaron::Spawner.new(url, options)
